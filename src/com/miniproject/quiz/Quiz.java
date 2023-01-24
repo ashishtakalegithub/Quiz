@@ -36,8 +36,15 @@ public class Quiz implements QuizInterf {
 							+ rs.getString(4) + "%n" + rs.getString(5) + "%n" + rs.getString(6) + "%n");
 
 				}
-				System.out.println("Option 1:Press 1	Option 2:Press 2	Option 3:Press 3	Option 4:Press 4");
-				int ans = sc.nextInt();
+				// To restrict input to option availability
+				int ans = 0;
+				while (true) {
+					System.out.println("Option 1:Press 1	Option 2:Press 2	Option 3:Press 3	Option 4:Press 4");
+					ans = sc.nextInt();
+					if (ans > 0 && ans < 5) {
+						break;
+					}
+				}
 				String input = "select option" + ans + " from student.quebank where id=" + i;
 				rs = st.executeQuery(input);
 				String option = null;
