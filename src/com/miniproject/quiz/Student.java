@@ -15,6 +15,7 @@ public class Student {
 	}
 
 	public String getlName() {
+		
 		return lName;
 	}
 
