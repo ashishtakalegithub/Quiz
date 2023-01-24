@@ -24,8 +24,8 @@ public class Quiz implements QuizInterf {
 	public Student attemptQuiz(Student details) {
 		ConnectionTest connection = new ConnectionTest();
 		con = connection.getConnectionDetails();
+		int count = 0;
 		try {
-			int count = 0;
 			Statement st = con.createStatement();
 			for (int i = 1; i <= 10; i++) {
 				String sqlQuery = "select id,questions,option1,option2,option3,option4 from student.quebank "
@@ -66,9 +66,19 @@ public class Quiz implements QuizInterf {
 
 			String fname = student.getfName();
 			String lname = student.getlName();
+			String grade = null;
 
-			String sqlQuery = "insert into result(fName,lName,score)" + " values(" + "'" + fname + "'" + "," + "'"
-					+ lname + "'" + "," + count + ")";
+			if (count >= 8) {
+				grade = "A";
+			} else if (count >= 6 && count <= 7) {
+				grade = "B";
+			} else if (count == 5) {
+				grade = "C";
+			} else {
+				grade = "Fail";
+			}
+			String sqlQuery = "insert into result(fName,lName,score,grade)" + " values(" + "'" + fname + "'" + "," + "'"
+					+ lname + "'" + "," + count + "," + "'" + grade + "'" + ")";
 
 			st.executeUpdate(sqlQuery);
 
