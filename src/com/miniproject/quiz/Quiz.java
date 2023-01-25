@@ -8,9 +8,11 @@ import java.util.Scanner;
 
 public class Quiz implements QuizInterf {
 	Connection con = null;
+	Statement st = null;
 	Student student = new Student();
 	Scanner sc = new Scanner(System.in);
 
+	// to get user details
 	public Student getUserDetails() {
 		System.out.println("Enter your First Name");
 		student.setfName(sc.nextLine());
@@ -21,12 +23,27 @@ public class Quiz implements QuizInterf {
 		return student;
 	}
 
-	public Student attemptQuiz(Student details) {
+	// get connection and statement object
+	public Statement getstatement() {
 		ConnectionTest connection = new ConnectionTest();
 		con = connection.getConnectionDetails();
+
+		try {
+			st = con.createStatement();
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		return st;
+
+	}
+
+	// give test and save data to database
+	public Student attemptQuiz(Student details) {
+		getstatement();
+		// iterate over all questions
 		int count = 0;
 		try {
-			Statement st = con.createStatement();
 			for (int i = 1; i <= 10; i++) {
 				String sqlQuery = "select id,questions,option1,option2,option3,option4 from student.quebank "
 						+ "where id=" + i;
@@ -45,6 +62,7 @@ public class Quiz implements QuizInterf {
 						break;
 					}
 				}
+				// check answer given by student with the right answer
 				String input = "select option" + ans + " from student.quebank where id=" + i;
 				rs = st.executeQuery(input);
 				String option = null;
@@ -63,7 +81,7 @@ public class Quiz implements QuizInterf {
 					count++;
 				}
 			}
-
+			// calculate grade and save to database
 			String fname = student.getfName();
 			String lname = student.getlName();
 			String grade = null;
@@ -85,13 +103,28 @@ public class Quiz implements QuizInterf {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		// display marks
+		displayResult(details);
 		return student;
 
 	}
 
 	@Override
-	public void displayResult() {
 
+	public void displayResult(Student details) {
+		System.out.println("Result of " + details.getfName() + " " + details.getlName());
+		getstatement();
+		String sqlQuery = "select concat(fName,'  ',lName) as 'Full Name',score,grade \r\n" + "from result\r\n"
+				+ "where fName='" + details.getfName() + "' && lName='" + details.getlName() + "';";
+		try {
+			ResultSet result = st.executeQuery(sqlQuery);
+			while (result.next()) {
+				System.out.println("Name of Student::" + result.getString(1) + "\r\n" + "Marks Obtained::"
+						+ result.getInt(2) + "\t" + "Grade::" + result.getString(3));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
