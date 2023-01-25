@@ -127,9 +127,23 @@ public class Quiz implements QuizInterf {
 		}
 	}
 
+	// to display all students based on rank
 	@Override
 	public void displayScoreCard() {
+		String sqlQuery = "select rank() over (order by score desc) as 'Rank' ,\r\n"
+				+ "concat(fName,' ',lName) as 'Student Name',score,grade\r\n"
+				+ "from student.result order by score desc\r\n" + "; ";
+		System.out.println("Rank\t Name Of Student\t MarksObtained\t Grade");
+		try {
+			ResultSet sort = st.executeQuery(sqlQuery);
+			while (sort.next()) {
+				System.out.println(sort.getInt(1) + "\t" + sort.getString(2) + "	\t" + sort.getInt(3) + "\t"
+						+ sort.getString(4));
+			}
+		} catch (SQLException e) {
 
+			e.printStackTrace();
+		}
 	}
 
 	@Override
