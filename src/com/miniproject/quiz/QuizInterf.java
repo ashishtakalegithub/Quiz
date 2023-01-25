@@ -1,7 +1,7 @@
 package com.miniproject.quiz;
 
 public interface QuizInterf {
-	public void displayResult();
+	public void displayResult(Student details);
 
 	public void displayScoreCard();
 
