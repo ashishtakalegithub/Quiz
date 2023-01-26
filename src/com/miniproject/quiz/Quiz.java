@@ -9,6 +9,7 @@ import java.util.Scanner;
 public class Quiz implements QuizInterf {
 	Connection con = null;
 	Statement st = null;
+	ResultSet rs=null;
 	Student student = new Student();
 	Scanner sc = new Scanner(System.in);
 
@@ -65,7 +66,7 @@ public class Quiz implements QuizInterf {
 		String SqlQueryCheck = "select exists(select 1 from student.result);";
 		int empty = 0;
 		try {
-			ResultSet rs = st.executeQuery(SqlQueryCheck);
+			 rs = st.executeQuery(SqlQueryCheck);
 			while (rs.next()) {
 				empty = rs.getInt(1);
 			}
@@ -82,7 +83,7 @@ public class Quiz implements QuizInterf {
 			String sqlQueryStudentEntry = "select exists(select fname,lName from student.result where fName='"
 					+ details.getfName() + "' and lName='" + details.getlName() + "');";
 			try {
-				ResultSet rs = st.executeQuery(sqlQueryStudentEntry);
+				 rs = st.executeQuery(sqlQueryStudentEntry);
 				while (rs.next()) {
 					attempted = rs.getInt(1);
 				}
@@ -119,7 +120,7 @@ public class Quiz implements QuizInterf {
 			for (int i = 1; i <= 10; i++) {
 				String sqlQuery = "select id,questions,option1,option2,option3,option4 from student.quebank "
 						+ "where id=" + i;
-				ResultSet rs = st.executeQuery(sqlQuery);
+				 rs = st.executeQuery(sqlQuery);
 				while (rs.next()) {
 					System.out.printf(rs.getInt(1) + "%n" + rs.getString(2) + "%n" + rs.getString(3) + "%n"
 							+ rs.getString(4) + "%n" + rs.getString(5) + "%n" + rs.getString(6) + "%n");
@@ -189,11 +190,12 @@ public class Quiz implements QuizInterf {
 		String sqlQuery = "select concat(fName,'  ',lName) as 'Full Name',score,grade \r\n" + "from result\r\n"
 				+ "where fName='" + details.getfName() + "' && lName='" + details.getlName() + "';";
 		try {
-			ResultSet result = st.executeQuery(sqlQuery);
-			while (result.next()) {
-				System.out.println("Name of Student::" + result.getString(1) + "\r\n" + "Marks Obtained::"
-						+ result.getInt(2) + "\t" + "Grade::" + result.getString(3));
+			 rs = st.executeQuery(sqlQuery);
+			while (rs.next()) {
+				System.out.println("Name of Student::" + rs.getString(1) + "\r\n" + "Marks Obtained::"
+						+ rs.getInt(2) + "\t" + "Grade::" + rs.getString(3));
 			}
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -208,11 +210,24 @@ public class Quiz implements QuizInterf {
 				+ "from student.result order by score desc\r\n" + "; ";
 		System.out.println("Rank\t Name Of Student\t MarksObtained\t Grade");
 		try {
-			ResultSet sort = st.executeQuery(sqlQuery);
-			while (sort.next()) {
-				System.out.printf(sort.getInt(1) + "\t " + sort.getString(2) + "	\t " + sort.getInt(3) + "\t\t "
-						+ sort.getString(4) + "%n");
+			 rs = st.executeQuery(sqlQuery);
+			while (rs.next()) {
+				System.out.printf(rs.getInt(1) + "\t " + rs.getString(2) + "\t\t" + rs.getInt(3) + "\t\t "
+						+ rs.getString(4) + "%n");
 			}
+			rs.close();
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+	}
+
+	// to close resources
+	public void closeResource() {
+		try {
+			st.close();
+			con.close();
+			rs.close();
 		} catch (SQLException e) {
 
 			e.printStackTrace();

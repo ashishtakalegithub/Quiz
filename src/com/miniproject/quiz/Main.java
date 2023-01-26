@@ -6,5 +6,6 @@ public class Main {
 		Quiz quiz = new Quiz();
 		Student details = quiz.getUserDetails();
 		quiz.selectService(details);
+		quiz.closeResource() ;
 	}
 }
