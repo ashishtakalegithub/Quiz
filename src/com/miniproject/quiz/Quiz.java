@@ -38,6 +38,58 @@ public class Quiz implements QuizInterf {
 
 	}
 
+	// restrict student to give exam only once
+	public Student checkEntry(Student details) {
+		getstatement();
+		// check whether table is empty or not
+		String SqlQueryCheck = "select exists(select 1 from student.result);";
+		int empty = 0;
+		try {
+			ResultSet rs = st.executeQuery(SqlQueryCheck);
+			while (rs.next()) {
+				empty = rs.getInt(1);
+			}
+		} catch (SQLException e2) {
+			e2.printStackTrace();
+		}
+		switch (empty) {
+		case 0:
+			attemptQuiz(details);
+			break;
+		// check whether Quiz attempted or not
+		case 1:
+			int attempted = 0;
+			String sqlQueryStudentEntry = "select exists(select fname,lName from student.result where fName='"
+					+ details.getfName() + "' and lName='" + details.getlName() + "');";
+			try {
+				ResultSet rs = st.executeQuery(sqlQueryStudentEntry);
+				while (rs.next()) {
+					attempted = rs.getInt(1);
+				}
+				switch (attempted) {
+				case 0:
+					attemptQuiz(details);
+					break;
+				case 1:
+					System.out.println("You have already attempted Quiz");
+					displayResult(details);
+					break;
+				default:
+					break;
+				}
+			} catch (SQLException e) {
+
+				e.printStackTrace();
+			}
+			break;
+		default:
+			break;
+		}
+
+		return student;
+
+	}
+
 	// give test and save data to database
 	public Student attemptQuiz(Student details) {
 		getstatement();
@@ -137,7 +189,7 @@ public class Quiz implements QuizInterf {
 		try {
 			ResultSet sort = st.executeQuery(sqlQuery);
 			while (sort.next()) {
-				System.out.println(sort.getInt(1) + "\t" + sort.getString(2) + "	\t" + sort.getInt(3) + "\t"
+				System.out.printf(sort.getInt(1) + "\t" + sort.getString(2) + "	\t" + sort.getInt(3) + "\t"
 						+ sort.getString(4));
 			}
 		} catch (SQLException e) {
