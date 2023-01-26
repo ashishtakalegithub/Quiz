@@ -38,6 +38,26 @@ public class Quiz implements QuizInterf {
 
 	}
 
+	// select services from the list
+	public void selectService(Student details) {
+		System.out.printf("To attempt quiz  ::Press 1%nTo get Result    ::Press 2%nTo get Merit List::Press 3%n");
+		int service = sc.nextInt();
+		switch (service) {
+		case 1:
+			checkEntry(details);
+			break;
+		case 2:
+			displayResult(details);
+			break;
+		case 3:
+			getMeritList();
+			break;
+
+		default:
+			break;
+		}
+	}
+
 	// restrict student to give exam only once
 	public Student checkEntry(Student details) {
 		getstatement();
@@ -181,7 +201,8 @@ public class Quiz implements QuizInterf {
 
 	// to display all students based on rank
 	@Override
-	public void displayScoreCard() {
+	public void getMeritList() {
+		getstatement();
 		String sqlQuery = "select rank() over (order by score desc) as 'Rank' ,\r\n"
 				+ "concat(fName,' ',lName) as 'Student Name',score,grade\r\n"
 				+ "from student.result order by score desc\r\n" + "; ";
@@ -189,8 +210,8 @@ public class Quiz implements QuizInterf {
 		try {
 			ResultSet sort = st.executeQuery(sqlQuery);
 			while (sort.next()) {
-				System.out.printf(sort.getInt(1) + "\t" + sort.getString(2) + "	\t" + sort.getInt(3) + "\t"
-						+ sort.getString(4));
+				System.out.printf(sort.getInt(1) + "\t " + sort.getString(2) + "	\t " + sort.getInt(3) + "\t\t "
+						+ sort.getString(4) + "%n");
 			}
 		} catch (SQLException e) {
 
