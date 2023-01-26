@@ -11,7 +11,7 @@ public class Student {
 	}
 
 	public void setfName(String fName) {
-		this.fName = fName;
+		this.fName = fName.toUpperCase().trim();
 	}
 
 	public String getlName() {
@@ -19,7 +19,7 @@ public class Student {
 	}
 
 	public void setlName(String lName) {
-		this.lName = lName;
+		this.lName = lName.toUpperCase().trim();
 	}
 
 	public long getMobileNumber() {
