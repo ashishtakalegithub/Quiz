@@ -5,5 +5,4 @@ public interface QuizInterf {
 
 	public void getMeritList();
 
-	public void particularRecord();
 }
