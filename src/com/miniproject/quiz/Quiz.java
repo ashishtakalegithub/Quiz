@@ -4,7 +4,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+import java.util.TreeMap;
 
 public class Quiz implements QuizInterf {
 	Connection con = null;
@@ -77,7 +80,7 @@ public class Quiz implements QuizInterf {
 		case 0:
 			attemptQuiz(details);
 			break;
-		// check whether Quiz attempted or not
+		// check whether Quiz attempted or not by using full name
 		case 1:
 			int attempted = 0;
 			String sqlQueryStudentEntry = "select exists(select fname,lName from student.result where fName='"
@@ -111,21 +114,88 @@ public class Quiz implements QuizInterf {
 
 	}
 
+	// store questions with random order from database to list
+
+	public List<String> storeQuestions() {
+		getstatement();
+		ArrayList<String> questions = new ArrayList<>();
+		String sqlQuery = "SELECT questions,option1,option2,option3,option4 FROM quebank ORDER BY RAND();";
+		try {
+			rs = st.executeQuery(sqlQuery);
+			while (rs.next()) {
+				String que = rs.getString(1) + "\n" + rs.getString(2) + "\n" + rs.getString(3) + "\n" + rs.getString(4)
+						+ "\n" + rs.getString(5) + "\n";
+				questions.add(que);
+			}
+			student.setQuestions(questions);
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+
+		return questions;
+
+	}
+
+	// store questions and answers for validation purpose
+
+	public TreeMap<String, String> storeQueAns() {
+		TreeMap<String, String> queAndans = new TreeMap<String, String>();
+		ArrayList<String> queSeq = new ArrayList<>();
+		ArrayList<String> ansSeq = new ArrayList<>();
+		String sqlQuery1 = "SELECT questions,option1,option2,option3,option4 FROM quebank ;";
+		try {
+			rs = st.executeQuery(sqlQuery1);
+			while (rs.next()) {
+				String que = rs.getString(1) + "\n" + rs.getString(2) + "\n" + rs.getString(3) + "\n" + rs.getString(4)
+						+ "\n" + rs.getString(5) + "\n";
+				queSeq.add(que);
+			}
+			student.setQueSeq(queSeq);
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		String sqlQuery2 = "SELECT answer FROM quebank ;";
+		try {
+			rs = st.executeQuery(sqlQuery2);
+			while (rs.next()) {
+				String ans = rs.getString(1) + "\n";
+				ansSeq.add(ans);
+			}
+			student.setQueSeq(ansSeq);
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+
+		int i = 0;
+		while (i < queSeq.size()) {
+			queAndans.put(queSeq.get(i), ansSeq.get(i));
+			i++;
+		}
+		student.setQueAndans(queAndans);
+
+		return queAndans;
+
+	}
+
 	// give test and save data to database
 	public Student attemptQuiz(Student details) {
 		getstatement();
 		// iterate over all questions
 		int count = 0;
 		try {
-			for (int i = 1; i <= 10; i++) {
-				String sqlQuery = "select id,questions,option1,option2,option3,option4 from student.quebank "
-						+ "where id=" + i;
-				rs = st.executeQuery(sqlQuery);
-				while (rs.next()) {
-					System.out.printf(rs.getInt(1) + "%n" + rs.getString(2) + "%n" + rs.getString(3) + "%n"
-							+ rs.getString(4) + "%n" + rs.getString(5) + "%n" + rs.getString(6) + "%n");
 
-				}
+			storeQuestions();
+			storeQueAns();
+			String currentQue = null;
+			String currentAns = null;
+			for (int i = 0; i < student.getQuestions().size(); i++) {
+				System.out.println(student.getQuestions().get(i));
+				currentQue = student.getQuestions().get(i);
+				currentAns = student.getQueAndans().get(currentQue);
+
 				// To restrict input to option availability
 				int ans = 0;
 				while (true) {
@@ -135,22 +205,19 @@ public class Quiz implements QuizInterf {
 						break;
 					}
 				}
+
 				// check answer given by student with the right answer
-				String input = "select option" + ans + " from student.quebank where id=" + i;
+				String input = "select option" + ans + " from student.quebank where answer=" + "'" + currentAns.trim()
+						+ "'";
 				rs = st.executeQuery(input);
-				String option = null;
+				String stdAns = null;
 				while (rs.next()) {
 
-					option = rs.getString(1);
+					stdAns = rs.getString(1) + "\n";
 				}
 
-				String sql = "select answer from student.quebank" + " where id=" + i;
-				rs = st.executeQuery(sql);
-				String check = null;
-				while (rs.next()) {
-					check = rs.getString(1);
-				}
-				if (check.equals(option)) {
+				// calculate marks
+				if (currentAns.equals(stdAns)) {
 					count++;
 				}
 			}
@@ -173,15 +240,19 @@ public class Quiz implements QuizInterf {
 
 			st.executeUpdate(sqlQuery);
 
-		} catch (SQLException e) {
+		} catch (
+
+		SQLException e) {
 			e.printStackTrace();
 		}
+
 		// display marks
 		displayResult(details);
 		return student;
 
 	}
 
+	// display result of individual
 	@Override
 
 	public void displayResult(Student details) {

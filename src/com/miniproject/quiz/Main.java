@@ -4,8 +4,11 @@ package com.miniproject.quiz;
 public class Main {
 	public static void main(String[] args) {
 		Quiz quiz = new Quiz();
+		// get user details
 		Student details = quiz.getUserDetails();
+		// enter into particular service
 		quiz.selectService(details);
-		quiz.closeResource() ;
+		// close the resources
+		quiz.closeResource();
 	}
 }
